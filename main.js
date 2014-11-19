@@ -14,7 +14,7 @@ define(function(require, exports, module) {
         }
         codeMirror = editor._codeMirror;
         codeMirror.on("change", function (codeMirror, change) {
-        	cssfier.run(codeMirror, change);
+                cssfier.run(codeMirror, change); 
         });
     });
 });
