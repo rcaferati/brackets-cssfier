@@ -259,7 +259,8 @@ define(function (require, exports, module) {
             current,
             parent,
             has, i, j, n;
-        for (i = max; i > 1; i--) {
+        //for (i = max; i > 1; i--) {
+        for (i = 2; i <= max; i++) {
             selectors = getSelectorsFromDepth(cssi, i);
             for (j in selectors) {
                 current = selectors[j];
@@ -268,6 +269,7 @@ define(function (require, exports, module) {
                 for (n in parent) {
                     if (hasChild(parent[n], current)) {
                         has = true;
+                        break;
                     }
                     if (current.selector === parent[n].selector || current.tag === parent[n].tag) {
                         if (current.tag != parent[n].tag && current.element.selector.match(/^(\.|\#)/)) {
@@ -276,7 +278,10 @@ define(function (require, exports, module) {
                                 parent[n].selector = parent[n].tag + parent[n].selector;
                             }
                         } else {
-                            has = true;
+                            if (current.selector === parent[n].selector || current.tag === current.selector) {
+                                has = true;
+                                break;
+                            }
                         }
                     }
                 }
@@ -295,6 +300,9 @@ define(function (require, exports, module) {
         recursive(array, {
             callback: function (el, arr, parent, depth) {
                 ref = refactor([el], array);
+                if (ref == 9) {
+                    return false;
+                }
                 if (!ref) {
                     refactorAll(array);
                     return false;
@@ -354,7 +362,8 @@ define(function (require, exports, module) {
             selectors = [],
             selector,
             index,
-            ready;
+            ready,
+            to_add;
 
         all.each(function () {
             var z, x;
@@ -367,7 +376,17 @@ define(function (require, exports, module) {
                     }
                 }
             }
-            index = addDepth(i, css, selector, this.tagName.toLowerCase(), depth);
+            to_add = [];
+            for (x in selector) {
+                if (
+                    index.indexOf(x) == -1 &&
+                    to_add.indexOf(selector[x]) == -1) {
+                    to_add.push(selector[x]);
+                }
+            }
+            if (to_add.length > 0) {
+                index = addDepth(i, css, selector, this.tagName.toLowerCase(), depth);
+            }
             if ($(this).children().length > 0 && index >= 0) {
                 populate($(this), css[index].children, depth + 1);
             }
@@ -414,7 +433,6 @@ define(function (require, exports, module) {
             line = codeMirror.getLine(from.line);
 
         order = 0;
-
         populate(object, css, 0);
         refactorAll(css);
         emptyCheck(css);
