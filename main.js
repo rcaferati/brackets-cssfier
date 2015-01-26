@@ -12,7 +12,6 @@ define(function (require, exports, module) {
 		codeMirror,
 		menu,
 		command,
-		settings = JSON.parse(require('text!settings.json')),
 		current = {},
 		preferences = PreferencesManager.getExtensionPrefs("caferati.cssfier"),
 		enable = "caferati.cssfier.enable",
