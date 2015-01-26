@@ -3,6 +3,8 @@ Brackets CSSfier
 
 Convert HTML into CSS/SCSS/LESS by pasting HTML blocks into CSS/SCSS/LESS file.
 
+![cssfier demo](http://cdn.caferati.me/images/labs/cssfier.gif)
+
 ## Installation ##
 
 ### Extension Manager
@@ -22,6 +24,9 @@ Convert HTML into CSS/SCSS/LESS by pasting HTML blocks into CSS/SCSS/LESS file.
 ----------------
 
 ## Changelog ##
+
+###1.0.2
+- Implemented enable/disable options
 
 ###1.0.1
 - Bug fixes
