@@ -1,15 +1,5 @@
 define(function (require, exports, module) {
-
-	var DocumentManager = brackets.getModule("document/DocumentManager"),
-		PreferencesManager = brackets.getModule("preferences/PreferencesManager"),
-		running,
-		order;
-
-	function isFileExt(ext) {
-		var fileType = DocumentManager.getCurrentDocument().getLanguage()._id;
-		if (fileType.match(new RegExp(ext, "i"))) return fileType.toLowerCase();
-		return false;
-	}
+	var order = 0;
 
 	function getSelectors(el) {
 		if (!el) return;
@@ -27,14 +17,6 @@ define(function (require, exports, module) {
 			selector.push(el.tagName.toLowerCase());
 		}
 		return selector;
-	}
-
-	function reindent(codeMirror, from, to) {
-		codeMirror.operation(function () {
-			codeMirror.eachLine(from, to, function (line) {
-				codeMirror.indentLine(line.lineNo(), "smart");
-			});
-		});
 	}
 
 	function recursive(array, params) {
@@ -128,7 +110,9 @@ define(function (require, exports, module) {
 				if (_array.all.length) {
 					for (n in _array.all) {
 						printAdd(
-							parents.length ? parents.join(" ") + " " + _array.selector : _array.selector + _array.all[n] + "{\n}\n",
+							parents.length ?
+							parents.join(" ") + " " + _array.selector :
+							_array.selector + _array.all[n] + "{\n}\n",
 							printed
 						);
 					}
@@ -357,7 +341,7 @@ define(function (require, exports, module) {
 	}
 
 	function populate(all, css, depth) {
-		all = all.children();
+		all = $(all).children();
 		var i = 0,
 			selectors = [],
 			selector,
@@ -387,71 +371,51 @@ define(function (require, exports, module) {
 			if (to_add.length > 0) {
 				index = addDepth(i, css, selector, this.tagName.toLowerCase(), depth);
 			}
-			if ($(this).children().length > 0 && index >= 0) {
-				populate($(this), css[index].children, depth + 1);
+			if (this.children && this.children.length > 0 && index >= 0) {
+				populate(this, css[index].children, depth + 1);
 			}
 		});
 	}
 
-	function run(codeMirror, change) {
-		if (change.origin !== "paste" || change.origin != "paste" || running || !change.text[0].match(/[<>]/mig)) {
-			return;
-		}
-		var file = isFileExt("scss|less|css");
-		if (!file) {
-			return;
+	function run(text, type) {
+
+		if(typeof text !== "string" || text.length == 0){
+			return "";
 		}
 
-		running = 1;
-		// At least 80ms until the next run.
-		setTimeout(function () {
-			running = 0;
-		}, 80);
+		var object = document.createElement("div"),
+			css = [],
+			printed;
 
-		var text = change.text,
-			allText = "";
-
-		for (var i = 0, l = text.length; i < l; i++) {
-			allText = allText + text[i];
-		}
-
-		allText = allText.replace(/[\t]+/mig, " ")
+		text = text.replace(/[\t]+/mig, " ")
 			.replace(/[\s]+/mig, " ")
 			.replace(/^[\s]+/mig, "")
 			.replace(/[\s]+$/mig, "")
 			.replace(/(\>)([\s]+)(\<)/mig, "$1$3");
 
-		if (!allText.match(/^(\<)(.*)(\>)$/)) {
+		if (!text.match(/^(\<)(.*)(\>)$/)) {
 			return;
 		}
 
-		var object = $("<div>" + allText + "</div>"),
-			css = [],
-			printed,
-			from = codeMirror.getCursor(true),
-			to = codeMirror.getCursor(false),
-			line = codeMirror.getLine(from.line);
-
 		order = 0;
+		object.innerHTML = text;
 		populate(object, css, 0);
 		refactorAll(css);
 		emptyCheck(css);
 		reorder(css);
 
-		switch (file) {
-		case "css":
-			printed = printCSS(css);
-			break;
-		default:
-			printed = printIndented(css);
+		switch (type) {
+			case "css":
+				printed = printCSS(css);
+				break;
+			default:
+				printed = printIndented(css);
 		}
 
-		codeMirror.replaceRange(printed, change.from, from);
-		reindent(codeMirror, change.from.line, change.from.line * 1 + printed.match(/\n/mig).length + 1);
+		return printed;
 	}
 
 	return {
 		run: run
 	};
-
 });

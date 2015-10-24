@@ -1,26 +1,26 @@
 {
-    "name": "brackets-cssfier",
-    "title": "CSSFier",
-    "version": "1.1.0",
-    "description": "Convert HTML into CSS/SCSS/LESS by pasting HTML blocks into CSS/SCSS/LESS file. NOW with live demo.",
-    "homepage": "https://caferati.me/labs/brackets-cssfier",
-    "author": "rcaferati (https://github.com/rcaferati/)",
-    "license": "MIT",
-    "categories": "formatting",
-    "keywords": [
-        "format",
-        "formatting",
-        "convert",
-        "css",
-        "scss",
-        "less",
-        "html2css",
-        "htmltocss"
-    ],
-    "files": [
-        "main.js"
-    ],
-    "engines": {
-        "brackets": ">=0.30.0"
-    }
+	"name": "brackets-cssfier",
+	"title": "CSSFier",
+	"version": "1.5.0",
+	"description": "Convert HTML into CSS/SCSS/LESS by pasting HTML blocks into CSS/SCSS/LESS file. NOW with live demo.",
+	"homepage": "https://caferati.me/labs/brackets-cssfier",
+	"author": "rcaferati (https://github.com/rcaferati/)",
+	"license": "MIT",
+	"categories": "formatting",
+	"keywords": [
+		"format",
+		"formatting",
+		"convert",
+		"css",
+		"scss",
+		"less",
+		"html2css",
+		"htmltocss"
+	],
+	"files": [
+		"main.js"
+	],
+	"engines": {
+		"brackets": ">=0.30.0"
+	}
 }
