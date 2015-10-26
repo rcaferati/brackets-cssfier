@@ -1,9 +1,9 @@
 {
 	"name": "brackets-cssfier",
 	"title": "CSSFier",
-	"version": "1.5.1",
+	"version": "1.5.2",
 	"description": "Convert HTML into CSS/SCSS/LESS by pasting HTML blocks into CSS/SCSS/LESS file. NOW with improved performance.",
-	"homepage": "https://caferati.me/labs/brackets-cssfier",
+	"homepage": "https://caferati.me/labs/cssfier",
 	"author": "rcaferati (https://github.com/rcaferati/)",
 	"license": "MIT",
 	"categories": "formatting",
