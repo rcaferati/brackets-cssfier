@@ -29,25 +29,25 @@ Convert HTML into CSS/SCSS/LESS by pasting HTML blocks into CSS/SCSS/LESS file.
 
 ## Changelog ##
 
-###1.0.2
+### 1.0.2
 - Implemented enable/disable options
 
-###1.0.1
+### 1.0.1
 - Bug fixes
 
-###1.0.0
+### 1.0.0
 - Added CSS support
 - Improved selector order and logic
 - Better indentation
 
-###0.1.5
+### 0.1.5
 - Added indentation check
 
-###0.1.3
+### 0.1.3
 - Bug fixes
 
-###0.1.2
+### 0.1.2
 - Added support for LESS files
 
-###0.1.0
+### 0.1.0
 - Initial release
