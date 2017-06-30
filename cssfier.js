@@ -6,8 +6,8 @@ define(function (require, exports, module) {
 		var selector = [];
 		if (el.className && el.className.split) {
 			var classes = el.className.split(" ");
-			for (var i in classes) {
-				selector.push("." + classes[classes.length - 1 - i]);
+			for (var i = classes.length - 1; i >= 0; i--) {
+				selector.push("." + classes[i]);
 			}
 		}
 		if (el.id) {
@@ -24,6 +24,7 @@ define(function (require, exports, module) {
 		var can_go = 1;
 
 		function recursive(array, parent, depth, back) {
+			console.log("recursive2,"+can_go);
 			if (!can_go) return;
 			if (array.length > 0) {
 				for (var i = 0; i < array.length; i++) {
@@ -67,7 +68,7 @@ define(function (require, exports, module) {
 					);
 				}
 				if (_array.all.length) {
-					for (var n in _array.all) {
+					for (var n = 0; n < _array.all.length; n++) {
 						printAdd(
 							"&" + _array.all[n] + params.open + "\n" +
 							params.close + "\n",
@@ -108,7 +109,7 @@ define(function (require, exports, module) {
 					printed
 				);
 				if (_array.all.length) {
-					for (n in _array.all) {
+					for (var n = 0; n < _array.all.length; n++) {
 						printAdd(
 							parents.length ?
 							parents.join(" ") + " " + _array.selector :
@@ -246,11 +247,11 @@ define(function (require, exports, module) {
 		//for (i = max; i > 1; i--) {
 		for (i = 2; i <= max; i++) {
 			selectors = getSelectorsFromDepth(cssi, i);
-			for (j in selectors) {
+			for (j = 0; j < selectors.length; j++) {
 				current = selectors[j];
 				parent = selectors[j].parent;
 				has = false;
-				for (n in parent) {
+				for (n = 0; n < parent.length; n++) {
 					if (hasChild(parent[n], current)) {
 						has = true;
 						break;
@@ -352,16 +353,17 @@ define(function (require, exports, module) {
 		all.each(function () {
 			var z, x;
 			selector = getSelectors(this);
+		
 			index = [];
-			for (z in css) {
-				for (x in selector) {
+			for (z = 0; z < css.length; z++) {
+				for (x = 0; x < selector.length; x++) {
 					if (css[z].selector == selector[x]) {
 						index.push(x);
 					}
 				}
 			}
 			to_add = [];
-			for (x in selector) {
+			for (x = 0; x < selector.length; x++) {
 				if (
 					index.indexOf(x) == -1 &&
 					to_add.indexOf(selector[x]) == -1) {
@@ -378,7 +380,7 @@ define(function (require, exports, module) {
 	}
 
 	function run(text, type) {
-
+	
 		if(typeof text !== "string" || text.length == 0){
 			return "";
 		}
@@ -391,9 +393,9 @@ define(function (require, exports, module) {
 			.replace(/[\s]+/mig, " ")
 			.replace(/^[\s]+/mig, "")
 			.replace(/[\s]+$/mig, "")
-			.replace(/(\>)([\s]+)(\<)/mig, "$1$3");
+			.replace(/(>)([\s]+)(<)/mig, "$1$3");
 
-		if (!text.match(/^(\<)(.*)(\>)$/)) {
+		if (!text.match(/^(<)(.*)(\>)$/)) {
 			return;
 		}
 
@@ -411,7 +413,6 @@ define(function (require, exports, module) {
 			default:
 				printed = printIndented(css);
 		}
-
 		return printed;
 	}
 

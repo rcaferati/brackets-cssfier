@@ -56,7 +56,7 @@ define(function (require, exports, module) {
 		setStatus(true);
 	});
 	CommandManager.register("Disable cssfier", disable, function () {
-		setStatus(false)
+		setStatus(false);
 	});
 
 	menu = Menus.getMenu(Menus.AppMenuBar.EDIT_MENU);
@@ -64,7 +64,7 @@ define(function (require, exports, module) {
 	preferences.definePreference("status", "boolean", true);
 	preferences.get("status") ? menu.addMenuItem(disable) : menu.addMenuItem(enable);
 
-	$(MainViewManager).on("currentFileChange", function () {
+	MainViewManager.on("currentFileChange", function () {
 		editor = EditorManager.getCurrentFullEditor();
 		if (!editor) {
 			return;
@@ -98,7 +98,6 @@ define(function (require, exports, module) {
 			if(!text.length){
 				return;
 			}
-
 			text = cssfier.run(text, file);
 			codeMirror.replaceRange(text, change.from, from);
 			reindent(codeMirror, change.from.line, change.from.line * 1 + text.match(/\n/mig).length + 1);
