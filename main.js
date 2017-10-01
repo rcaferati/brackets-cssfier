@@ -1,4 +1,4 @@
-define(function (require, exports, module) {
+define(function (require/* , exports, module */) {
 	"use strict";
 	var CommandManager = brackets.getModule('command/CommandManager'),
 		EditorManager = brackets.getModule('editor/EditorManager'),
@@ -11,9 +11,9 @@ define(function (require, exports, module) {
 		editor,
 		codeMirror,
 		menu,
-		command,
+		//command,
 		running = false,
-		current = {},
+		//current = {},
 		preferences = PreferencesManager.getExtensionPrefs("caferati.cssfier"),
 		enable = "caferati.cssfier.enable",
 		disable = "caferati.cssfier.disable";
@@ -21,10 +21,10 @@ define(function (require, exports, module) {
 	function setStatus(status) {
 		preferences.set("status", status);
 		if (status) {
-			menu.addMenuItem(disable)
+			menu.addMenuItem(disable);
 			menu.removeMenuItem(enable);
 		} else {
-			menu.addMenuItem(enable)
+			menu.addMenuItem(enable);
 			menu.removeMenuItem(disable);
 		}
 		Dialogs.showModalDialog("cssfier-modal", "Cssfier", "Cssfier extension is now " + (status ? "enabled" : "disabled") + ".");
@@ -44,9 +44,14 @@ define(function (require, exports, module) {
 		});
 	}
 
+
+
 	function arrayToText(text){
 		var all = "";
 		for (var i = 0, l = text.length; i < l; i++) {
+			if(/^\s*$/.test(text[i])){
+				continue;
+			}
 			all = all + text[i];
 		}
 		return all;
@@ -62,7 +67,11 @@ define(function (require, exports, module) {
 	menu = Menus.getMenu(Menus.AppMenuBar.EDIT_MENU);
 	menu.addMenuDivider();
 	preferences.definePreference("status", "boolean", true);
-	preferences.get("status") ? menu.addMenuItem(disable) : menu.addMenuItem(enable);
+	if(preferences.get("status")){
+		menu.addMenuItem(disable);
+	}else{
+		menu.addMenuItem(enable);
+	}
 
 	MainViewManager.on("currentFileChange", function () {
 		editor = EditorManager.getCurrentFullEditor();
@@ -73,15 +82,17 @@ define(function (require, exports, module) {
 		codeMirror.on("change", function (codeMirror, change) {
 			if (!preferences.get("status")) return;
 
-			if (change.origin !== "paste" || change.origin != "paste" || running || !change.text[0].match(/[<>]/mig)) {
+			if (change.origin !== "paste" || change.origin != "paste" || running /* || !change.text[0].match(/[<>]/mig) */) {
 				return;
 			}
 
 			var file = isFileExt("scss|less|css"),
 				text = change.text,
-				from = codeMirror.getCursor(true),
-				to = codeMirror.getCursor(false),
-				line = codeMirror.getLine(from.line);
+				from = codeMirror.getCursor(true);
+				//to = codeMirror.getCursor(false),
+				//line = codeMirror.getLine(from.line);
+
+			var oldText;
 
 			if (!file) {
 				return;

@@ -1,20 +1,21 @@
-define(function (require, exports, module) {
+define(function (/* require, exports, module */) {
 	var order = 0;
+	var bemParentClassName = false;
 
-	function getSelectors(el) {
+	function getSelectors(el) {//クラス名を逆順に配列に格納して末尾にidを入れた配列を返す関数。無ければタグ名。
 		if (!el) return;
-		var selector = [];
-		if (el.className && el.className.split) {
-			var classes = el.className.split(" ");
-			for (var i = classes.length - 1; i >= 0; i--) {
+		var selector = [];//セレクターを格納する配列。
+		if (el.className && el.className.split) {//要素のクラス名があれば。
+			var classes = el.className.split(" ");//クラス名をスペースで分割して配列に。
+			for (var i = classes.length - 1; i >= 0; i--) {//クラス名配列を逆順にしてselector配列に格納。
 				selector.push("." + classes[i]);
 			}
 		}
-		if (el.id) {
-			selector.push("#" + el.id);
+		if (el.id) {//IDがあれば。
+			selector.push("#" + el.id);//selector配列にの末尾に追加。
 		}
 		if (selector.length === 0) {
-			selector.push(el.tagName.toLowerCase());
+			selector.push(el.tagName.toLowerCase());//idやクラス名が無ければタグ名をselector配列に入れる。
 		}
 		return selector;
 	}
@@ -24,7 +25,6 @@ define(function (require, exports, module) {
 		var can_go = 1;
 
 		function recursive(array, parent, depth, back) {
-			console.log("recursive2,"+can_go);
 			if (!can_go) return;
 			if (array.length > 0) {
 				for (var i = 0; i < array.length; i++) {
@@ -47,15 +47,28 @@ define(function (require, exports, module) {
 	}
 
 	function printIndentedChildren(array, printed, params) {
+		//arrayにはrunのcss配列が入ってる。各要素の情報オブジェクト達。
 		var _array,
 			selectors = [],
 			params = params || {
 				open: "{",
 				close: "}"
 			};
+
+		//console.log(array);
+
 		if (array.length > 0) {
 			for (var i = 0; i < array.length; i++) {
 				_array = array[i];
+				
+				if(bemParentClassName && _array.depth > 0){//2階層目以降のみ
+					_array.selector = _array.selector.replace(bemParentClassName, "&__");
+				}
+
+				if (_array.selector.slice(0, 1) === "." && _array.depth === 0) {//メインセレクタがクラスだったら&&1階層目のみ
+					bemParentClassName = _array.selector + "__";
+				}
+
 				printAdd(
 					_array.selector + " " + params.open + "\n",
 					printed
@@ -69,6 +82,10 @@ define(function (require, exports, module) {
 				}
 				if (_array.all.length) {
 					for (var n = 0; n < _array.all.length; n++) {
+						if(bemParentClassName){
+							_array.all[n] = _array.all[n].replace(bemParentClassName, "&__");
+							_array.all[n] = _array.all[n].replace(_array.selector, "");
+						}
 						printAdd(
 							"&" + _array.all[n] + params.open + "\n" +
 							params.close + "\n",
@@ -79,6 +96,7 @@ define(function (require, exports, module) {
 				if (_array.children.length > 0) {
 					printIndentedChildren(_array.children, printed, params);
 				}
+				//bemParentClassName = false;
 				printAdd(
 					params.close + "\n",
 					printed
@@ -109,7 +127,7 @@ define(function (require, exports, module) {
 					printed
 				);
 				if (_array.all.length) {
-					for (var n = 0; n < _array.all.length; n++) {
+					for (n = 0; n < _array.all.length; n++) {
 						printAdd(
 							parents.length ?
 							parents.join(" ") + " " + _array.selector :
@@ -324,57 +342,62 @@ define(function (require, exports, module) {
 		});
 	}
 
-	function addDepth(index, css, selector, tag, depth) {
-		if (css[index]) {
-			while (css[index]) {
-				index++;
+	function addDepth(index, css, selector, tag, depth) {//indexはi。css,selectorは配列。tagはタグ名。depthには最初0が入ってる。
+		if (css[index]) {//css配列は最初、空っぽ。
+			while (css[index]) {//css配列のindex番目がある限り、indexをインクリメント。
+				index++;//結局、配列が3まであるならindexは4になる。lengthで良いのでは。
 			}
 		}
-		css[index] = {};
+		css[index] = {};//css配列の末尾にオブジェクトを追加。pushで良いのでは。
 		css[index].selector = selector[selector.length - 1];
-		selector.splice(selector.length - 1, 1);
-		css[index].all = selector;
-		css[index].depth = depth;
-		css[index].tag = tag;
-		css[index].order = order++;
-		css[index].children = [];
-		return index;
+		//css配列のindex番目のselectorプロパティに、セレクタ配列の末尾のセレクタを入れる。idがあればid。無ければ最後のクラス名。メインのセレクタを入れてるっぽい。
+		selector.splice(selector.length - 1, 1);//セレクタ配列の末尾のセレクタを削除。
+		css[index].all = selector;//残りのセレクタをallプロパティに格納。
+		css[index].depth = depth;//depthは最初0。
+		css[index].tag = tag;//タグ名。
+		css[index].order = order++;//順番を入れていると推測。
+		css[index].children = [];//childrenプロパティに空配列を入れる。
+		return index; //iを返す。
 	}
 
-	function populate(all, css, depth) {
-		all = $(all).children();
+	function populate(all, css, depth) {//runから最初に実行される関数。allにはhtml文をラップしたdiv。cssには空の配列。depthには最初0が入ってる（初期）。
+		//2回目はallには子が入ってくる。depthは1（階層っぽい）。
+		//css配列には、各要素の情報がどんどん入れられてくみたい。
+		all = $(all).children();//html文をjQueryにぶち込んでObject化。
 		var i = 0,
 			selectors = [],
-			selector,
+			selector,//クラス名が逆順に加工されている。末尾にID。無ければタグ名。
 			index,
 			ready,
-			to_add;
+			to_add;//配列。
 
-		all.each(function () {
+		all.each(function () {//子要素というか、0階層目の要素全部に実行。
 			var z, x;
-			selector = getSelectors(this);
+			selector = getSelectors(this);//クラス名を逆順に配列に格納して末尾にidを入れた配列を返す関数。無ければタグ名。
 		
-			index = [];
-			for (z = 0; z < css.length; z++) {
-				for (x = 0; x < selector.length; x++) {
-					if (css[z].selector == selector[x]) {
-						index.push(x);
+			index = [];//indexには最初、空配列を入れる。でも後でただの数値に入れ替える。
+			//css配列のメンバ達のメインセレクタ達の番号をindex配列に格納するみたい。
+			for (z = 0; z < css.length; z++) {//css配列分、回す。最初はcss配列は空なので何もしない。
+				for (x = 0; x < selector.length; x++) {//さらにその中でこの要素のセレクタ配列分、回す。
+					if (css[z].selector == selector[x]) {//css配列のz番目のメインセレクタと同じだったら
+						index.push(x); //index配列にx（数字）をpushする。
 					}
 				}
 			}
 			to_add = [];
-			for (x = 0; x < selector.length; x++) {
-				if (
+			for (x = 0; x < selector.length; x++) {//セレクタ配列を回す。
+				if (//もしindex配列にもto_addにもx（そのセレクタ）が無ければ
 					index.indexOf(x) == -1 &&
 					to_add.indexOf(selector[x]) == -1) {
-					to_add.push(selector[x]);
+					to_add.push(selector[x]);//to_add配列の末尾に追加。
 				}
 			}
-			if (to_add.length > 0) {
+			if (to_add.length > 0) {//to_add配列に何か入ってたら
+				//index配列にaddDepthの返り値（ただの数値）を格納。
 				index = addDepth(i, css, selector, this.tagName.toLowerCase(), depth);
 			}
-			if (this.children && this.children.length > 0 && index >= 0) {
-				populate(this, css[index].children, depth + 1);
+			if (this.children && this.children.length > 0 && index >= 0) {//孫がいて、indexが0以上なら
+				populate(this, css[index].children, depth + 1);//深さを1上げて、孫たちにも実行。
 			}
 		});
 	}
@@ -386,7 +409,7 @@ define(function (require, exports, module) {
 		}
 
 		var object = document.createElement("div"),
-			css = [],
+			css = [],//cssには各要素の情報オブジェクトがどんどん詰められてくみたい。何階層目かを表すdepthプロパティもあるよ。
 			printed;
 
 		text = text.replace(/[\t]+/mig, " ")
@@ -396,7 +419,7 @@ define(function (require, exports, module) {
 			.replace(/(>)([\s]+)(<)/mig, "$1$3");
 
 		if (!text.match(/^(<)(.*)(\>)$/)) {
-			return;
+			return "";
 		}
 
 		order = 0;

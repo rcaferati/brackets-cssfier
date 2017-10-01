@@ -1,10 +1,9 @@
 {
-	"name": "brackets-cssfier",
-	"title": "CSSFier",
-	"version": "1.5.2",
-	"description": "Convert HTML into CSS/SCSS/LESS by pasting HTML blocks into CSS/SCSS/LESS file. NOW with improved performance.",
-	"homepage": "https://caferati.me/labs/cssfier",
-	"author": "rcaferati (https://github.com/rcaferati/)",
+	"name": "brackets-cssfier-bem",
+	"title": "CSSFier with BEM",
+	"version": "0.0.1",
+	"description": "CSSFier with BEM. It works with 'jQuinter'(awesome extension) too. Convert HTML into CSS/SCSS/LESS by pasting HTML blocks into CSS/SCSS/LESS file. Original Extension By rcaferati (https://github.com/rcaferati/)",
+	"author": "jzmstrjp",
 	"license": "MIT",
 	"categories": "formatting",
 	"keywords": [
@@ -14,6 +13,7 @@
 		"css",
 		"scss",
 		"less",
+		"bem",
 		"html2css",
 		"htmltocss"
 	],
@@ -21,6 +21,6 @@
 		"main.js"
 	],
 	"engines": {
-		"brackets": ">=0.30.0"
+		"brackets": ">=1.8.0"
 	}
 }
